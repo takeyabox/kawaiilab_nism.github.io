@@ -318,7 +318,7 @@ h2 {
 
 .note-long-active .note-long-head,
 .note-long-active .note-long-tail {
-    background-image: url('notes_long_pushed.png');
+    background-image: url('ui/notes/notes_long_pushed.png');
 }
 
 .note-long-active .note-long-body {
