@@ -49,7 +49,7 @@
 }
 
 body {
-    background: url('ui/background.png') no-repeat center center fixed;
+    background: url('background.png') no-repeat center center fixed;
     background-size: cover;
     color: white;
     overflow: hidden;
@@ -270,7 +270,7 @@ h2 {
 
 .note-normal {
     height: var(--note-height);
-    background-image: url('ui/notes/notes_noraml.png');
+    background-image: url('notes_noraml.png');
     /* Note the typo in filename from instructions */
 }
 
@@ -288,7 +288,7 @@ h2 {
     width: 100%;
     height: var(--note-height);
     flex-shrink: 0;
-    background-image: url('ui/notes/notes_long.png');
+    background-image: url('notes_long.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     order: 2; /* rendered last = at the bottom of the flex column = visual bottom */
@@ -310,7 +310,7 @@ h2 {
     width: 100%;
     height: var(--note-height);
     flex-shrink: 0;
-    background-image: url('ui/notes/notes_long.png');
+    background-image: url('notes_long.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     order: 0; /* rendered first = at the top of the flex column = visual top */
@@ -318,7 +318,7 @@ h2 {
 
 .note-long-active .note-long-head,
 .note-long-active .note-long-tail {
-    background-image: url('ui/notes/notes_long_pushed.png');
+    background-image: url('notes_long_pushed.png');
 }
 
 .note-long-active .note-long-body {
