@@ -49,7 +49,7 @@
 }
 
 body {
-    background: url('background.png') no-repeat center center fixed;
+    background: url('ui/background.png') no-repeat center center fixed;
     background-size: cover;
     color: white;
     overflow: hidden;
@@ -270,7 +270,7 @@ h2 {
 
 .note-normal {
     height: var(--note-height);
-    background-image: url('notes_noraml.png');
+    background-image: url('ui/notes/notes_noraml.png');
     /* Note the typo in filename from instructions */
 }
 
@@ -288,7 +288,7 @@ h2 {
     width: 100%;
     height: var(--note-height);
     flex-shrink: 0;
-    background-image: url('notes_long.png');
+    background-image: url('ui/notes/notes_long.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     order: 2; /* rendered last = at the bottom of the flex column = visual bottom */
@@ -310,7 +310,7 @@ h2 {
     width: 100%;
     height: var(--note-height);
     flex-shrink: 0;
-    background-image: url('notes_long.png');
+    background-image: url('ui/notes/notes_long.png');
     background-size: 100% 100%;
     background-repeat: no-repeat;
     order: 0; /* rendered first = at the top of the flex column = visual top */
@@ -318,7 +318,7 @@ h2 {
 
 .note-long-active .note-long-head,
 .note-long-active .note-long-tail {
-    background-image: url('notes_long_pushed.png');
+    background-image: url('ui/notes/notes_long_pushed.png');
 }
 
 .note-long-active .note-long-body {
@@ -488,9 +488,6 @@ h2 {
 
 /* ─── Touch Controls ─────────────────────────────────────────── */
 
-/* pc-only: hidden on touch devices; touch-only: hidden on PC (shown via media query) */
-.touch-only { display: none; }
-
 /* Touch overlay: transparent panel that sits over the lanes */
 #touch-overlay {
     position: absolute;
@@ -512,11 +509,17 @@ h2 {
 /* Menu touch buttons */
 .menu-instructions {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 12px;
     margin-top: 16px;
+}
+
+.nav-buttons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
 }
 
 .touch-nav-btn {
@@ -573,8 +576,6 @@ h2 {
 
 /* ─── Responsive: Smartphone Landscape ────────────────────────── */
 @media (max-width: 900px) and (orientation: landscape) {
-    /* Show touch-only elements, hide PC-only */
-    .touch-only { display: initial; }
     .pc-only    { display: none !important; }
 
     /* Enable touch overlay */

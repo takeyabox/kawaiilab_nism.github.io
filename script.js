@@ -15,23 +15,23 @@ const songs = [
     {
         id: 'music1',
         title: 'かわいいだけじゃだめですか？',
-        jacket: 'jacket_music1.jpg',
+        jacket: 'ui/jacket/jacket_music1.jpg',
         youtubeId: 'jZqTz1G8G04',
-        notesSrc: 'music1.json'
+        notesSrc: 'notes/music1.json'
     },
     {
         id: 'music2',
         title: 'わたしのいちばんかわいいところ',
-        jacket: 'jacket_music2.jpg',
+        jacket: 'ui/jacket/jacket_music2.jpg',
         youtubeId: 'NQUo3vITjgY',
-        notesSrc: 'music2.json'
+        notesSrc: 'notes/music2.json'
     },
     {
         id: 'music3',
         title: 'music3',
-        jacket: 'jacket_music3.jpg',
+        jacket: 'ui/jacket/jacket_music3.jpg',
         youtubeId: 'uySbsSsWBiE',
-        notesSrc: 'music3.json'
+        notesSrc: 'notes/music3.json'
     }
 ];
 let currentSongIndex = 0;
@@ -42,7 +42,7 @@ const NOTE_HEIGHT = 20;  // px, should match CSS --note-height
 const KEYS = ['f', 'g', 'h', 'j'];
 
 // Sound effect
-const hitSound = new Audio('sound_notes.mp3');
+const hitSound = new Audio('sound/sound_notes.mp3');
 hitSound.load();
 function playHitSound() {
     const s = hitSound.cloneNode();
