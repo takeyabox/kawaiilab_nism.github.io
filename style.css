@@ -1,0 +1,619 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+
+:root {
+    --lane-width: 80px;
+    --lane-height: 80vh;
+    --hit-zone-y: 85%;
+    --note-height: 20px;
+    --primary-color: #ffe082;
+    --secondary-color: #ff81ff;
+    --bg-dark: rgba(10, 10, 20, 0.55);
+    --bg-menu: rgba(10, 10, 20, 0.85);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    user-select: none;
+}
+
+/* YouTube player: background MV behind game UI */
+#youtube-player-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+#youtube-player-container iframe,
+#youtube-player {
+    position: absolute;
+    /* YouTube iframe: cover the full container with 16:9 aspect ratio */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* Scale up to always cover the viewport */
+    width: 100vw;
+    height: 56.25vw;   /* 16:9 */
+    min-height: 100vh;
+    min-width: 177.78vh; /* 16:9 */
+    border: none;
+    opacity: 0.45;
+    transition: opacity 1s ease;
+}
+
+body {
+    background: url('background.png') no-repeat center center fixed;
+    background-size: cover;
+    color: white;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #111;
+    /* fallback */
+}
+
+#game-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 100vh;
+    background: var(--bg-dark);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    overflow: hidden;
+    touch-action: none; /* prevent scroll/zoom on touch */
+    z-index: 1;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* Menu Screen */
+.menu-content,
+.result-content {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+}
+
+h1,
+h2 {
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 20px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.song-info {
+    margin: 30px 0;
+}
+
+#song-jacket {
+    width: 250px;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    border: 3px solid var(--primary-color);
+    transition: transform 0.3s ease;
+}
+
+#song-jacket:hover {
+    transform: scale(1.05);
+}
+
+#song-title {
+    margin-top: 15px;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.blink {
+    animation: blinker 1.5s linear infinite;
+    margin-top: 20px;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
+}
+
+/* Offset Settings UI */
+.offset-settings {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.offset-settings p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 10px;
+}
+
+.offset-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+}
+
+.offset-controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.offset-controls button:active {
+    background: rgba(255, 224, 130, 0.3);
+}
+
+#offset-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    min-width: 80px;
+    text-align: center;
+}
+
+/* Game Screen */
+#game-screen {
+    justify-content: flex-start;
+}
+
+#lanes-container {
+    display: flex;
+    height: var(--lane-height);
+    margin-top: auto;
+    margin-bottom: 50px;
+    border-left: 2px solid rgba(255, 255, 255, 0.2);
+    border-right: 2px solid rgba(255, 255, 255, 0.2);
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.1));
+    position: relative;
+    overflow: hidden;
+}
+
+.lane {
+    width: var(--lane-width);
+    height: 100%;
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    flex-shrink: 0;
+}
+
+.lane:last-child {
+    border-right: none;
+}
+
+.hit-zone {
+    position: absolute;
+    top: 85%;
+    width: 100%;
+    height: var(--note-height);
+    background: rgba(255, 255, 255, 0.2);
+    border-top: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+    z-index: 10;
+}
+
+.lane.active .hit-zone {
+    background: rgba(0, 255, 204, 0.5);
+    box-shadow: 0 0 20px var(--primary-color);
+}
+
+.key-hint {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.lane.active .key-hint {
+    color: var(--primary-color);
+    text-shadow: 0 0 10px var(--primary-color);
+}
+
+/* Notes */
+.note {
+    position: absolute;
+    width: 100%;
+    left: 0;
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: 5;
+    will-change: top;
+}
+
+.note-normal {
+    height: var(--note-height);
+    background-image: url('notes_noraml.png');
+    /* Note the typo in filename from instructions */
+}
+
+.note-long {
+    /* Container: background-image removed; sub-elements handle visuals */
+    opacity: 0.9;
+    display: flex;
+    flex-direction: column;
+    /* Note: top/height set by JS. The element grows upward in the DOM:
+       tail (top of element) → body (middle) → head (bottom of element) */
+}
+
+/* Head = the note image at the TOP of the falling note (hits the zone first) */
+.note-long-head {
+    width: 100%;
+    height: var(--note-height);
+    flex-shrink: 0;
+    background-image: url('notes_long.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    order: 2; /* rendered last = at the bottom of the flex column = visual bottom */
+}
+
+/* Body = colored fill between tail and head */
+.note-long-body {
+    width: 100%;
+    flex: 1;
+    background: linear-gradient(to bottom, rgba(0, 220, 180, 0.25), rgba(0, 220, 180, 0.45));
+    border-left: 3px solid rgba(0, 255, 204, 0.7);
+    border-right: 3px solid rgba(0, 255, 204, 0.7);
+    order: 1;
+    min-height: 0;
+}
+
+/* Tail = the note image at the BOTTOM of the falling element (hits zone last) */
+.note-long-tail {
+    width: 100%;
+    height: var(--note-height);
+    flex-shrink: 0;
+    background-image: url('notes_long.png');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    order: 0; /* rendered first = at the top of the flex column = visual top */
+}
+
+.note-long-active .note-long-head,
+.note-long-active .note-long-tail {
+    background-image: url('notes_long_pushed.png');
+}
+
+.note-long-active .note-long-body {
+    background: linear-gradient(to bottom, rgba(0, 255, 204, 0.4), rgba(0, 255, 204, 0.6));
+    border-left-color: rgba(0, 255, 204, 1);
+    border-right-color: rgba(0, 255, 204, 1);
+}
+
+/* UI Elements */
+#score-display {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-shadow: 0 0 5px black;
+}
+
+#combo-display {
+    position: absolute;
+    top: 150px;
+    width: 100%;
+    text-align: center;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--primary-color);
+    text-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.1s;
+    transform: scale(1);
+    z-index: 20;
+}
+
+#combo-display.pop {
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+#judgement-display {
+    position: absolute;
+    top: 250px;
+    width: 100%;
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    opacity: 0;
+    z-index: 20;
+    transition: opacity 0.1s, transform 0.1s;
+}
+
+.judgement-perfect {
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
+}
+
+.judgement-great {
+    color: #00ffcc;
+    text-shadow: 0 0 10px #00ffcc;
+}
+
+.judgement-miss {
+    color: #ff3333;
+    text-shadow: 0 0 10px #ff3333;
+}
+
+.pop-anim {
+    animation: popOut 0.5s forwards;
+}
+
+@keyframes popOut {
+    0% {
+        opacity: 1;
+        transform: scale(0.8);
+    }
+
+    20% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+/* Game Controls (Pause / Quit) */
+#game-controls {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 10px;
+    z-index: 30;
+}
+
+.game-ctrl-btn {
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+    transition: all 0.2s;
+}
+
+.game-ctrl-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.game-ctrl-btn:active {
+    transform: scale(0.9);
+}
+
+/* Pause Overlay */
+#pause-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 40;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+#pause-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+#pause-overlay h2 {
+    font-size: 4rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px var(--primary-color);
+}
+
+#pause-overlay p {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Result Screen */
+.result-details {
+    text-align: left;
+    font-size: 1.5rem;
+    margin: 20px 0;
+    line-height: 1.8;
+}
+
+.result-details span {
+    float: right;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* ─── Touch Controls ─────────────────────────────────────────── */
+
+/* pc-only: hidden on touch devices; touch-only: hidden on PC (shown via media query) */
+.touch-only { display: none; }
+
+/* Touch overlay: transparent panel that sits over the lanes */
+#touch-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    pointer-events: none;   /* default: keyboard mode — touch events added via JS */
+    z-index: 50;
+}
+
+.touch-lane {
+    flex: 1;
+    height: 100%;
+    /* Visual feedback on press handled by JS lane.active class */
+}
+
+/* Menu touch buttons */
+.menu-instructions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.touch-nav-btn {
+    background: rgba(255,255,255,0.1);
+    border: 2px solid var(--primary-color);
+    color: var(--primary-color);
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.touch-nav-btn:active {
+    background: rgba(255, 224, 130, 0.3);
+}
+
+.touch-start-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: #111;
+    border-radius: 30px;
+    padding: 14px 36px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,224,130,0.4);
+    transition: transform 0.1s;
+}
+.touch-start-btn:active {
+    transform: scale(0.95);
+}
+
+/* Result screen return button */
+.touch-return-btn {
+    display: block;
+    margin: 16px auto 0;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    border: none;
+    color: #111;
+    border-radius: 30px;
+    padding: 14px 40px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    letter-spacing: 2px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255,224,130,0.4);
+    transition: transform 0.1s;
+}
+.touch-return-btn:active {
+    transform: scale(0.95);
+}
+
+/* ─── Responsive: Smartphone Landscape ────────────────────────── */
+@media (max-width: 900px) and (orientation: landscape) {
+    /* Show touch-only elements, hide PC-only */
+    .touch-only { display: initial; }
+    .pc-only    { display: none !important; }
+
+    /* Enable touch overlay */
+    #touch-overlay { pointer-events: auto; }
+
+    /* Wider game container */
+    #game-container {
+        max-width: 100vw;
+    }
+
+    /* Lanes: fill width equally */
+    #lanes-container {
+        width: 100%;
+        margin-bottom: 0;
+        height: 85vh;
+    }
+    .lane {
+        width: 25%; /* 4 lanes = 100% */
+    }
+
+    /* Slightly smaller headings */
+    h1, h2 { font-size: 1.8rem; }
+
+    /* Compact menu on small landscape screens */
+    .menu-content, .result-content {
+        padding: 20px 24px;
+    }
+    #song-jacket {
+        width: 120px;
+        height: 120px;
+    }
+    .song-info { margin: 12px 0; }
+    #song-title { font-size: 1rem; }
+
+    /* Combo / judgement positioning */
+    #combo-display    { top: 60px;  font-size: 2.5rem; }
+    #judgement-display{ top: 120px; font-size: 1.6rem; }
+    #score-display    { font-size: 1rem; top: 10px; right: 16px; }
+
+    /* Result details */
+    .result-details { font-size: 1.1rem; }
+}

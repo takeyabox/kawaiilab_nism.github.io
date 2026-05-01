@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="screen-orientation" content="landscape">
+    <title>かわらぼにずむ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Hidden YouTube player container (behind game UI) -->
+    <div id="youtube-player-container">
+        <div id="youtube-player"></div>
+    </div>
+    <div id="game-container">
+        <!-- Menu Screen -->
+        <div id="menu-screen" class="screen active">
+            <div class="menu-content">
+                <h1>かわらぼにずむ</h1>
+                <div class="song-info">
+                    <img id="song-jacket" src="" alt="Jacket">
+                    <div id="song-title"></div>
+                </div>
+                <div class="menu-instructions">
+                    <p class="pc-only">Press [Enter] to Start &nbsp;|&nbsp; [←][→] to Select</p>
+                    <button id="btn-prev" class="touch-nav-btn touch-only">◀</button>
+                    <button id="btn-start" class="touch-start-btn touch-only">TAP TO START</button>
+                    <button id="btn-next" class="touch-nav-btn touch-only">▶</button>
+                </div>
+                <div class="offset-settings">
+                    <p>タイミング調整</p>
+                    <div class="offset-controls">
+                        <button id="btn-offset-minus">-</button>
+                        <span id="offset-display">0 ms</span>
+                        <button id="btn-offset-plus">+</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen">
+            <div id="game-controls">
+                <button id="btn-pause" class="game-ctrl-btn">⏸</button>
+                <button id="btn-quit" class="game-ctrl-btn">⏹</button>
+            </div>
+            <div id="score-display">Score: <span id="current-score">0</span>%</div>
+            <div id="combo-display"><span id="current-combo">0</span></div>
+            <div id="judgement-display"></div>
+            
+            <div id="pause-overlay">
+                <h2>PAUSE</h2>
+                <p>Press [Space] or [⏸] to Resume</p>
+            </div>
+
+            <div id="lanes-container">
+                <div class="lane" id="lane-0">
+                    <div class="key-hint pc-only">F</div>
+                    <div class="hit-zone"></div>
+                </div>
+                <div class="lane" id="lane-1">
+                    <div class="key-hint pc-only">G</div>
+                    <div class="hit-zone"></div>
+                </div>
+                <div class="lane" id="lane-2">
+                    <div class="key-hint pc-only">H</div>
+                    <div class="hit-zone"></div>
+                </div>
+                <div class="lane" id="lane-3">
+                    <div class="key-hint pc-only">J</div>
+                    <div class="hit-zone"></div>
+                </div>
+            </div>
+
+            <!-- Touch overlay: 4 transparent areas covering each lane -->
+            <div id="touch-overlay">
+                <div class="touch-lane" data-lane="0"></div>
+                <div class="touch-lane" data-lane="1"></div>
+                <div class="touch-lane" data-lane="2"></div>
+                <div class="touch-lane" data-lane="3"></div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <div class="result-content">
+                <h2>RESULT</h2>
+                <div class="result-details">
+                    <p>Score: <span id="final-score">0</span>%</p>
+                    <p>Perfect: <span id="result-perfect">0</span></p>
+                    <p>Great: <span id="result-great">0</span></p>
+                    <p>Miss: <span id="result-miss">0</span></p>
+                    <p>Max Combo: <span id="result-max-combo">0</span></p>
+                </div>
+                <p class="blink pc-only">Press [Space] to Return</p>
+                <button id="btn-return" class="touch-return-btn">MENU に戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
