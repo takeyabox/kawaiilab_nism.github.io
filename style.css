@@ -870,7 +870,11 @@ body.is-playing .lane {
 /* ═══════════════════════════════
    Responsive — Smartphone landscape
 ═══════════════════════════════ */
-@media (max-width: 960px) and (orientation: landscape) {
+/* ═══════════════════════════════════════════════════════════
+   スマートフォン横画面 (height ≤ 500px, landscape)
+   ゲームとして最低限 height ≥ 320px を想定
+═══════════════════════════════════════════════════════════ */
+@media (orientation: landscape) and (max-height: 500px) {
     .pc-only {
         display: none !important;
     }
@@ -879,98 +883,266 @@ body.is-playing .lane {
         pointer-events: auto;
     }
 
-    /* Menu */
+    /* ── Menu ── */
+    #menu-screen {
+        align-items: stretch;
+    }
+
     .menu-left {
-        flex: 0 0 52%;
-        padding: 16px 12px;
-        gap: 10px;
+        flex: 0 0 50%;
+        padding: 8px 10px;
+        gap: 6px;
+        justify-content: center;
     }
 
     .game-title h1 {
-        font-size: 1.3rem;
+        font-size: 1rem;
+        margin: 0;
     }
 
+    /* ジャケット: 画面高さの30%まで（最大110px）*/
     .jacket-wrap {
-        width: 120px;
-        height: 120px;
+        width: min(30vh, 110px);
+        height: min(30vh, 110px);
+        border-radius: 10px;
     }
 
     #song-name {
-        font-size: 0.9rem;
+        font-size: 0.78rem;
+        max-width: 200px;
     }
 
-    .start-btn {
-        padding: 10px 24px;
-        font-size: 0.9rem;
+    .song-nav {
+        gap: 8px;
     }
 
-    .menu-right {
-        flex: 0 0 48%;
-        padding: 16px 12px;
-    }
-
-    .settings-panel {
-        padding: 16px 14px;
-    }
-
-    .settings-title {
-        font-size: 0.8rem;
-        margin-bottom: 12px;
-    }
-
-    .setting-row {
-        margin-bottom: 12px;
-    }
-
-    .setting-label {
-        font-size: 0.72rem;
-    }
-
-    /* Game */
-    #game-hud {
-        padding: 6px 10px;
-    }
-
-    .hud-btn {
+    .nav-btn {
         width: 36px;
         height: 36px;
-        font-size: 0.95rem;
-    }
-
-    #score-pct {
         font-size: 1rem;
     }
 
+    .start-btn {
+        padding: 8px 20px;
+        font-size: 0.82rem;
+        letter-spacing: 2px;
+    }
+
+    .key-hint-text {
+        display: none;
+    }
+
+    /* ── Settings ── */
+    .menu-right {
+        flex: 0 0 50%;
+        padding: 8px 8px;
+        align-items: center;
+    }
+
+    .settings-panel {
+        padding: 10px 12px;
+        border-radius: 12px;
+        max-width: 100%;
+        /* 縦スクロール可能にする */
+        max-height: calc(100vh - 20px);
+        overflow-y: auto;
+    }
+
+    .settings-title {
+        font-size: 0.7rem;
+        letter-spacing: 2px;
+        margin-bottom: 8px;
+    }
+
+    .setting-row {
+        margin-bottom: 8px;
+    }
+
+    .setting-label {
+        font-size: 0.65rem;
+        margin-bottom: 5px;
+    }
+
+    .adj-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 1rem;
+    }
+
+    .setting-val {
+        font-size: 0.85rem;
+        min-width: 32px;
+    }
+
+    .setting-val.wide {
+        min-width: 60px;
+    }
+
+    #vol-slider::-webkit-slider-thumb {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* ── Game HUD ── */
+    #game-hud {
+        padding: 4px 8px;
+        flex-shrink: 0;
+    }
+
+    .hud-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+        border-radius: 7px;
+    }
+
+    #hud-center {
+        font-size: 0.72rem;
+    }
+
+    .score-label {
+        font-size: 0.55rem;
+    }
+
+    #score-pct {
+        font-size: 0.9rem;
+    }
+
+    /* ── Lanes: flex で残り全高に収める ── */
+    #lanes-wrap {
+        flex: 1;
+        min-height: 0;
+        align-items: stretch;
+    }
+
     #lanes {
-        height: 76vh;
+        /* vh固定をやめてflexで高さを決める */
+        height: 100%;
+        width: 100%;
     }
 
     .lane {
         width: 25%;
     }
 
+    /* combo / judge: HUDの直下に配置 */
     #combo-display {
-        top: 70px;
-        font-size: 2.8rem;
+        top: 46px;
+        font-size: 2rem;
     }
 
     #judge-display {
-        top: 140px;
-        font-size: 1.5rem;
+        top: 90px;
+        font-size: 1.2rem;
+        letter-spacing: 2px;
     }
 
-    /* Result */
+    /* ── Result ── */
     .result-box {
-        padding: 20px 24px;
+        padding: 14px 20px;
+        max-width: 96vw;
+        border-radius: 14px;
+        overflow-y: auto;
+        max-height: 96vh;
+    }
+
+    .result-title {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+
+    #result-jacket-wrap {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 6px;
+    }
+
+    #result-song-name {
+        font-size: 0.78rem;
+        margin-bottom: 8px;
     }
 
     .result-score-big {
-        font-size: 2.6rem;
+        font-size: 2.2rem;
+        margin-bottom: 12px;
+    }
+
+    .pct-label {
+        font-size: 1.4rem;
+    }
+
+    .result-grid {
+        margin-bottom: 12px;
+    }
+
+    .result-row {
+        padding: 5px 0;
+    }
+
+    .rlab {
+        font-size: 0.7rem;
+    }
+
+    .rval {
+        font-size: 1rem;
+    }
+
+    .back-btn {
+        padding: 10px 28px;
+        font-size: 0.85rem;
+    }
+
+    /* ── Pause ── */
+    .pause-box h2 {
+        font-size: 2.4rem;
+    }
+
+    .pause-btns button {
+        padding: 8px 20px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ─── PC / タブレット横画面 (height > 500px, landscape) ─── */
+@media (orientation: landscape) and (min-height: 501px) and (max-width: 1200px) {
+    .pc-only {
+        display: none !important;
+    }
+
+    #touch-overlay {
+        pointer-events: auto;
+    }
+
+    .menu-left {
+        padding: 20px 16px;
+        gap: 12px;
+    }
+
+    .jacket-wrap {
+        width: 160px;
+        height: 160px;
+    }
+
+    .lane {
+        width: 25%;
+    }
+
+    #lanes {
+        height: 80vh;
+    }
+
+    #combo-display {
+        top: 80px;
+        font-size: 3.2rem;
+    }
+
+    #judge-display {
+        top: 160px;
+        font-size: 1.7rem;
     }
 }
 
 @media (orientation: portrait) {
-
     /* メニューを縦積みに */
     #menu-screen {
         flex-direction: column;
