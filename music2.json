@@ -3,12 +3,13 @@
         "name": "わたしのいちばんかわいいところ",
         "bpm": 256,
         "length": 1000,
-        "pre_count": 16
+        "pre_count": 15.5,
+        "youtubeId": "NQUo3vITjgY"
     },
     "notes": {
         "beat_9": "1001",
-	"beat_11":"0220",
-	"beat_15":"0220",
-	"beat_17":"1001"
+        "beat_11": "0220",
+        "beat_15": "0220",
+        "beat_17": "1001"
     }
 }

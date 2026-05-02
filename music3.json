@@ -1,0 +1,18 @@
+{
+    "property": {
+        "name": "倍倍fight!",
+        "youtubeId": "9HKbo1FstOE",
+        "bpm": 176,
+        "length": 1000,
+        "pre_count": 3.5
+    },
+    "notes": {
+        "beat_1": "1001",
+        "beat_3": "1001",
+        "beat_4": "0110",
+        "beat_5": "1010",
+        "beat_6": "0101",
+        "beat_7": "0110",
+        "beat_8": "1001"
+    }
+}
