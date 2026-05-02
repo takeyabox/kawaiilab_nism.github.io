@@ -601,8 +601,9 @@ body.is-playing .lane {
     position: absolute;
     left: 2px;
     right: 2px;
+    top: 0;
     z-index: 5;
-    will-change: top;
+    will-change: transform, height;
 }
 
 .note-normal {

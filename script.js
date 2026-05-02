@@ -327,17 +327,17 @@ function updateNotes() {
         if (!note.element) continue;
 
         if (note.type === 'normal') {
-            note.element.style.top = noteTimeToY(note.targetTime) + 'px';
+            note.element.style.transform = `translateY(${noteTimeToY(note.targetTime)}px)`;
         } else {
             const headY = noteTimeToY(note.targetTime);
             const tailY = noteTimeToY(note.endTime);
             if (note.active) {
                 const effTail = Math.min(tailY, hitZoneY);
-                note.element.style.top    = effTail + 'px';
+                note.element.style.transform = `translateY(${effTail}px)`;
                 note.element.style.height = Math.max(hitZoneY - effTail + NOTE_H, NOTE_H * 2) + 'px';
             } else {
                 const clampTail = Math.max(tailY, -NOTE_H);
-                note.element.style.top    = clampTail + 'px';
+                note.element.style.transform = `translateY(${clampTail}px)`;
                 note.element.style.height = Math.max(headY - clampTail + NOTE_H, NOTE_H * 2) + 'px';
             }
         }
@@ -374,12 +374,29 @@ function createNoteEl(note) {
    INPUT HANDLING
 ══════════════════════════════════════════════════════════════ */
 // Hit sound
-const hitSound = new Audio('sound_notes_push.mp3');
-hitSound.load();
+let audioCtx = null;
+let hitSoundBuffer = null;
+
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+if (AudioContext) {
+    audioCtx = new AudioContext();
+    fetch('sound_notes_push.mp3')
+        .then(r => r.arrayBuffer())
+        .then(b => audioCtx.decodeAudioData(b))
+        .then(buf => { hitSoundBuffer = buf; })
+        .catch(e => console.warn('Audio err', e));
+}
+
 function playHit() {
-    const s = hitSound.cloneNode();
-    s.volume = Math.min(1, cfg.volume / 100);
-    s.play().catch(() => {});
+    if (!audioCtx || !hitSoundBuffer) return;
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const src = audioCtx.createBufferSource();
+    src.buffer = hitSoundBuffer;
+    const gain = audioCtx.createGain();
+    gain.gain.value = Math.min(1, cfg.volume / 100);
+    src.connect(gain);
+    gain.connect(audioCtx.destination);
+    src.start(0);
 }
 
 // Keyboard
