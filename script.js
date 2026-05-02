@@ -47,6 +47,7 @@ let videoStarted  = false;
 let isBuffering   = false;
 let isPaused      = false;
 let hitZoneY      = 0;      // pixel Y of hit zone (measured after layout)
+let lastYtT       = -1;     // last raw YouTube time to prevent jitter
 
 /* ── DOM refs ──────────────────────────────────────────────────*/
 const $ = id => document.getElementById(id);
@@ -168,6 +169,7 @@ async function startGame() {
     videoStarted = false;
     isBuffering  = false;
     isPaused     = false;
+    lastYtT      = -1;
 
     // Clear old note elements
     document.querySelectorAll('.note').forEach(n => n.remove());
@@ -272,15 +274,25 @@ function gameLoop() {
         if (ytState === YT.PlayerState.PLAYING) {
             if (isBuffering) {
                 // Re-sync after buffer
-                const ytT = ytPlayer.getCurrentTime() + cfg.offset / 1000;
+                const rawYtT = ytPlayer.getCurrentTime();
+                const ytT = rawYtT + cfg.offset / 1000;
                 startPerf = performance.now() - ytT * 1000;
                 isBuffering = false;
+                lastYtT = rawYtT;
             }
-            const ytT    = ytPlayer.getCurrentTime() + cfg.offset / 1000;
+            const rawYtT = ytPlayer.getCurrentTime();
+            const ytT    = rawYtT + cfg.offset / 1000;
             const perfT  = (performance.now() - startPerf) / 1000;
-            if (Math.abs(perfT - ytT) > 0.05) {
-                startPerf = performance.now() - ytT * 1000;
-                vt = ytT;
+            
+            if (rawYtT !== lastYtT) {
+                lastYtT = rawYtT;
+                // Only resync when YouTube provides a new timestamp
+                if (Math.abs(perfT - ytT) > 0.1) {
+                    startPerf = performance.now() - ytT * 1000;
+                    vt = ytT;
+                } else {
+                    vt = perfT;
+                }
             } else {
                 vt = perfT;
             }
@@ -659,6 +671,13 @@ function hideLoading() {
 function resetScore() {
     return { perfect: 0, great: 0, miss: 0, combo: 0, maxCombo: 0 };
 }
+
+/* Window resize for layout */
+window.addEventListener('resize', () => {
+    if (state === GS.PLAYING) {
+        hitZoneY = $('lanes').offsetHeight * HIT_PCT;
+    }
+});
 
 /* Stop YouTube on page unload */
 window.addEventListener('beforeunload', stopYt);

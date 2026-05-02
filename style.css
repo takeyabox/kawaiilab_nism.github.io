@@ -26,6 +26,20 @@
     z-index: 0;
     pointer-events: none;
     overflow: hidden;
+    background: #000;
+}
+
+#yt-container::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 1;
+    transition: background 1s;
+}
+
+body.is-playing #yt-container::after {
+    background: rgba(0, 0, 0, 0.6);
 }
 
 #yt-container iframe,
@@ -39,8 +53,7 @@
     min-height: 100vh;
     min-width: 177.78vh;
     border: none;
-    opacity: 0.35;
-    transition: opacity 1s;
+    opacity: 1;
 }
 
 /* ── Background ── */
@@ -65,10 +78,7 @@ body.is-playing #bg-overlay {
     opacity: 0;
 }
 
-body.is-playing #yt-container iframe,
-body.is-playing #yt-player {
-    opacity: 0.40;
-}
+/* Opacity of video is managed by overlay to improve iOS Safari performance */
 
 body {
     background: #060412;
@@ -534,6 +544,7 @@ body {
     justify-content: center;
     overflow: hidden;
     position: relative;
+    transform: translateZ(0);
 }
 
 #lanes {
