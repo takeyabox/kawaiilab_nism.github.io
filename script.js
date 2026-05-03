@@ -29,7 +29,8 @@ const LS_KEY = 'kawarabonism2_';
 let cfg = {
     volume : clampInt(loadLS('volume', 80), 0, 100),
     offset : parseInt(loadLS('offset', 0), 10),  // ms  (positive = notes hit later)
-    speed  : parseFloat(loadLS('speed', 1.5))    // fall time in seconds
+    speed  : parseFloat(loadLS('speed', 1.5)),   // fall time in seconds
+    autoMode : loadLS('autoMode', 'false') === 'true'
 };
 
 /* ── YouTube ───────────────────────────────────────────────────*/
@@ -68,6 +69,8 @@ const volSlider    = $('vol-slider');
 const volDisplay   = $('vol-display');
 const offsetDisp   = $('offset-display');
 const speedDisp    = $('speed-display');
+const autoDisplay  = $('auto-display');
+const btnAutoToggle= $('btn-auto-toggle');
 
 /* ══════════════════════════════════════════════════════════════
    INIT
@@ -331,12 +334,42 @@ function noteTimeToY(t) {
 
 function updateNotes() {
     for (const note of notes) {
-        if (note.hit && note.type === 'normal') continue;
-        if (note.hit && note.type === 'long' && !note.active) continue;
+        if (note.hit && !note.element) continue;
 
         const spawnT = note.targetTime - cfg.speed;
-        if (!note.element && vt >= spawnT) createNoteEl(note);
+        if (!note.element && vt >= spawnT && !note.hit) createNoteEl(note);
         if (!note.element) continue;
+
+        // Auto Mode
+        if (cfg.autoMode) {
+            if (note.type === 'normal' && !note.hit && vt >= note.targetTime) {
+                playHit();
+                activateLane(note.lane, true);
+                setTimeout(() => activateLane(note.lane, false), 80);
+                note.hit = true;
+                note.element?.remove();
+                note.element = null;
+                registerHit('perfect');
+                continue;
+            } else if (note.type === 'long') {
+                if (!note.active && !note.hit && vt >= note.targetTime) {
+                    playHit();
+                    activateLane(note.lane, true);
+                    note.active = true;
+                    note.element?.classList.add('note-long-active');
+                    registerHit('perfect');
+                }
+                if (note.active && !note.hit && vt >= note.endTime) {
+                    activateLane(note.lane, false);
+                    note.active = false;
+                    note.hit = true;
+                    note.element?.remove();
+                    note.element = null;
+                    registerHit('perfect');
+                    continue;
+                }
+            }
+        }
 
         if (note.type === 'normal') {
             note.element.style.transform = `translateY(${noteTimeToY(note.targetTime)}px)`;
@@ -364,6 +397,15 @@ function updateNotes() {
             note.active = false;
             note.hit    = true;
             note.element.style.opacity = '0.2';
+        }
+
+        // Remove element if it falls past the bottom
+        if (note.hit && note.element) {
+            const tailY = noteTimeToY(note.type === 'long' ? note.endTime : note.targetTime);
+            if (tailY > hitZoneY + (hitZoneY * 0.25)) {
+                note.element.remove();
+                note.element = null;
+            }
         }
     }
 }
@@ -426,7 +468,7 @@ window.addEventListener('keydown', e => {
     if (state === GS.PLAYING) {
         if (e.code === 'Space') { togglePause(); return; }
         if (e.key  === 'Enter') { quitGame(); return; }
-        if (isPaused) return;
+        if (isPaused || cfg.autoMode) return;
         const li = KEYS.indexOf(e.key.toLowerCase());
         if (li !== -1) { playHit(); pressLane(li); activateLane(li, true); }
     }
@@ -437,7 +479,7 @@ window.addEventListener('keydown', e => {
 });
 
 window.addEventListener('keyup', e => {
-    if (state !== GS.PLAYING) return;
+    if (state !== GS.PLAYING || cfg.autoMode) return;
     const li = KEYS.indexOf(e.key.toLowerCase());
     if (li !== -1) { releaseLane(li); activateLane(li, false); }
 });
@@ -446,7 +488,7 @@ window.addEventListener('keyup', e => {
 const activeTouches = new Map();
 $('touch-overlay').addEventListener('touchstart', e => {
     e.preventDefault();
-    if (state !== GS.PLAYING || isPaused) return;
+    if (state !== GS.PLAYING || isPaused || cfg.autoMode) return;
     for (const t of e.changedTouches) {
         const li = touchToLane(t.clientX);
         if (li === -1) continue;
@@ -457,6 +499,7 @@ $('touch-overlay').addEventListener('touchstart', e => {
 
 $('touch-overlay').addEventListener('touchend', e => {
     e.preventDefault();
+    if (cfg.autoMode) return;
     for (const t of e.changedTouches) {
         const li = activeTouches.get(t.identifier);
         if (li === undefined) continue;
@@ -466,6 +509,7 @@ $('touch-overlay').addEventListener('touchend', e => {
 }, { passive: false });
 
 $('touch-overlay').addEventListener('touchcancel', e => {
+    if (cfg.autoMode) return;
     for (const t of e.changedTouches) {
         const li = activeTouches.get(t.identifier);
         if (li === undefined) continue;
@@ -499,6 +543,7 @@ function pressLane(li) {
     if (nearest.type === 'normal') {
         nearest.hit = true;
         nearest.element?.remove();
+        nearest.element = null;
     } else {
         nearest.active = true;
         nearest.element?.classList.add('note-long-active');
@@ -512,6 +557,7 @@ function releaseLane(li) {
     held.active = false;
     held.hit    = true;
     held.element?.remove();
+    held.element = null;
     const diff = Math.abs(held.endTime - vt);
     registerHit(diff < JUDGE_WIN.great
         ? (diff < JUDGE_WIN.perfect ? 'perfect' : 'great')
@@ -529,8 +575,12 @@ function registerHit(j) {
 }
 
 function updateScoreDisplay() {
-    const s = (score.perfect + score.great * 0.5) / (totalNotes || 1) * 100;
-    scorePct.textContent = s.toFixed(2) + '%';
+    if (cfg.autoMode) {
+        scorePct.textContent = 'AUTO';
+    } else {
+        const s = (score.perfect + score.great * 0.5) / (totalNotes || 1) * 100;
+        scorePct.textContent = s.toFixed(2) + '%';
+    }
     if (score.combo > 0) {
         comboNum.textContent = score.combo;
         comboDisp.classList.add('show');
@@ -586,7 +636,15 @@ function endGame() {
 
     $('result-jacket').src          = song.jacket;
     $('result-song-name').textContent = song.name;
-    $('result-score').textContent   = s.toFixed(2);
+
+    if (cfg.autoMode) {
+        $('result-score').textContent   = 'AUTO';
+        document.querySelector('.pct-label').style.display = 'none';
+    } else {
+        $('result-score').textContent   = s.toFixed(2);
+        document.querySelector('.pct-label').style.display = 'inline';
+    }
+
     $('r-perfect').textContent      = score.perfect;
     $('r-great').textContent        = score.great;
     $('r-miss').textContent         = score.miss;
@@ -603,6 +661,7 @@ function applySettings() {
     volDisplay.textContent   = cfg.volume;
     offsetDisp.textContent   = cfg.offset + ' ms';
     speedDisp.textContent    = cfg.speed.toFixed(1) + ' s';
+    autoDisplay.textContent  = cfg.autoMode ? 'ON' : 'OFF';
 }
 
 function saveLS(key, val) { localStorage.setItem(LS_KEY + key, val); }
@@ -635,6 +694,14 @@ $('btn-speed-minus').addEventListener('click', () => {
 $('btn-speed-plus').addEventListener('click', () => {
     cfg.speed = parseFloat(Math.min(4.0, cfg.speed + 0.25).toFixed(2));
     speedDisp.textContent = cfg.speed.toFixed(2) + ' s'; saveLS('speed', cfg.speed);
+});
+
+// Auto Mode
+btnAutoToggle.addEventListener('click', () => {
+    cfg.autoMode = !cfg.autoMode;
+    autoDisplay.textContent = cfg.autoMode ? 'ON' : 'OFF';
+    saveLS('autoMode', cfg.autoMode);
+    updateScoreDisplay();
 });
 
 /* ══════════════════════════════════════════════════════════════
