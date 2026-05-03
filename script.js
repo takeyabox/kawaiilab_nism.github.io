@@ -12,7 +12,7 @@ const SONG_FILES = ['music1.json', 'music2.json', 'music3.json'];
 /* ── Constants ─────────────────────────────────────────────────*/
 const KEYS        = ['d', 'f', 'j', 'k'];
 const HIT_PCT     = 0.85;          // hit zone position (matches CSS --hit-pct)
-const JUDGE_WIN   = { perfect: 0.05, great: 0.20 }; // seconds
+const JUDGE_WIN   = { perfect: 0.05, great: 0.10 }; // seconds
 const NOTE_H      = 22;            // px (matches CSS --note-h)
 
 /* ── Game State ────────────────────────────────────────────────*/
