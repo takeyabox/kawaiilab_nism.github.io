@@ -74,8 +74,41 @@ body.is-playing #yt-container::after {
 }
 
 /* ゲーム中は背景画像を消してYouTube映像を全画面で表示 */
-body.is-playing #bg-overlay {
+body.is-playing:not(.mv-thumb) #bg-overlay {
     opacity: 0;
+}
+
+/* 縮小表示時のYouTubeコンテナ */
+body.is-playing.mv-thumb #yt-container {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    bottom: auto;
+    left: auto;
+    width: 320px;
+    height: 180px;
+    z-index: 10;
+    border-radius: 12px;
+    border: 2px solid rgba(192, 132, 252, 0.4);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+    background: #000;
+}
+
+body.is-playing.mv-thumb #yt-container::after {
+    display: none;
+}
+
+body.is-playing.mv-thumb #yt-container iframe,
+body.is-playing.mv-thumb #yt-player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: none;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    border-radius: 10px;
 }
 
 /* Opacity of video is managed by overlay to improve iOS Safari performance */
@@ -243,9 +276,11 @@ body {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(192, 132, 252, 0.25);
     border-radius: 20px;
-    padding: 28px 24px;
+    padding: 24px 24px;
     backdrop-filter: blur(16px);
     box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .settings-title {
@@ -255,12 +290,12 @@ body {
     background: linear-gradient(90deg, var(--col-a), var(--col-c));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
     text-align: center;
 }
 
 .setting-row {
-    margin-bottom: 22px;
+    margin-bottom: 16px;
 }
 
 .setting-label {
@@ -912,10 +947,10 @@ body.is-playing .lane {
         margin: 0;
     }
 
-    /* ジャケット: 画面高さの30%まで（最大110px）*/
+    /* ジャケット: 画面高さの25%まで（最大100px）*/
     .jacket-wrap {
-        width: min(30vh, 110px);
-        height: min(30vh, 110px);
+        width: min(25vh, 100px);
+        height: min(25vh, 100px);
         border-radius: 10px;
     }
 
@@ -952,47 +987,48 @@ body.is-playing .lane {
     }
 
     .settings-panel {
-        padding: 10px 12px;
-        border-radius: 12px;
+        padding: 6px 10px;
+        border-radius: 10px;
         max-width: 100%;
-        /* 縦スクロール可能にする */
-        max-height: calc(100vh - 20px);
+        /* 縦スクロールなしを目指すが、念のため残す */
+        max-height: calc(100vh - 10px);
         overflow-y: auto;
     }
 
     .settings-title {
-        font-size: 0.7rem;
-        letter-spacing: 2px;
-        margin-bottom: 8px;
+        font-size: 0.65rem;
+        letter-spacing: 1px;
+        margin-bottom: 4px;
     }
 
     .setting-row {
-        margin-bottom: 8px;
+        margin-bottom: 4px;
     }
 
     .setting-label {
-        font-size: 0.65rem;
-        margin-bottom: 5px;
+        font-size: 0.6rem;
+        margin-bottom: 2px;
     }
 
     .adj-btn {
-        width: 28px;
-        height: 28px;
-        font-size: 1rem;
+        width: 24px;
+        height: 24px;
+        font-size: 0.9rem;
     }
 
     .setting-val {
-        font-size: 0.85rem;
-        min-width: 32px;
+        font-size: 0.75rem;
+        min-width: 28px;
     }
 
     .setting-val.wide {
-        min-width: 60px;
+        min-width: 50px;
     }
 
-    #vol-slider::-webkit-slider-thumb {
-        width: 14px;
-        height: 14px;
+    #vol-music-slider::-webkit-slider-thumb,
+    #vol-se-slider::-webkit-slider-thumb {
+        width: 12px;
+        height: 12px;
     }
 
     /* ── Game HUD ── */
@@ -1155,6 +1191,7 @@ body.is-playing .lane {
 }
 
 @media (orientation: portrait) {
+
     /* メニューを縦積みに */
     #menu-screen {
         flex-direction: column;

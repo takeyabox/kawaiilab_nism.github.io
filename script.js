@@ -27,10 +27,12 @@ let songIdx = 0;
 /* ── Settings (persisted to localStorage) ─────────────────────*/
 const LS_KEY = 'kawarabonism2_';
 let cfg = {
-    volume : clampInt(loadLS('volume', 80), 0, 100),
+    volMusic : clampInt(loadLS('volMusic', 80), 0, 100),
+    volSE    : clampInt(loadLS('volSE', 80), 0, 100),
     offset : parseInt(loadLS('offset', 0), 10),  // ms  (positive = notes hit later)
     speed  : parseFloat(loadLS('speed', 1.5)),   // fall time in seconds
-    autoMode : loadLS('autoMode', 'false') === 'true'
+    autoMode : loadLS('autoMode', 'false') === 'true',
+    mvMode : loadLS('mvMode', 'full') // 'full' or 'thumb'
 };
 
 /* ── YouTube ───────────────────────────────────────────────────*/
@@ -65,12 +67,16 @@ const judgeDisp    = $('judge-display');
 const pauseOverlay = $('pause-overlay');
 const loadingOv    = $('loading-overlay');
 const loadingTxt   = $('loading-text');
-const volSlider    = $('vol-slider');
-const volDisplay   = $('vol-display');
+const volMusicSlider  = $('vol-music-slider');
+const volMusicDisplay = $('vol-music-display');
+const volSESlider     = $('vol-se-slider');
+const volSEDisplay    = $('vol-se-display');
 const offsetDisp   = $('offset-display');
 const speedDisp    = $('speed-display');
 const autoDisplay  = $('auto-display');
 const btnAutoToggle= $('btn-auto-toggle');
+const mvDisplay    = $('mv-display');
+const btnMvToggle  = $('btn-mv-toggle');
 
 /* ══════════════════════════════════════════════════════════════
    INIT
@@ -191,7 +197,7 @@ async function startGame() {
         showLoading('動画をバッファリング中...');
         ytPlayer.loadVideoById({ videoId: song.youtubeId, startSeconds: 0 });
         ytPlayer.unMute();
-        ytPlayer.setVolume(cfg.volume);
+        ytPlayer.setVolume(cfg.volMusic);
         // Wait until enough is buffered, then play
         await waitForBuffer();
         ytPlayer.seekTo(0, true);
@@ -447,7 +453,7 @@ function playHit() {
     const src = audioCtx.createBufferSource();
     src.buffer = hitSoundBuffer;
     const gain = audioCtx.createGain();
-    gain.gain.value = Math.min(1, cfg.volume / 100);
+    gain.gain.value = Math.min(1, cfg.volSE / 100);
     src.connect(gain);
     gain.connect(audioCtx.destination);
     src.start(0);
@@ -657,26 +663,38 @@ function endGame() {
    SETTINGS
 ══════════════════════════════════════════════════════════════ */
 function applySettings() {
-    volSlider.value          = cfg.volume;
-    volDisplay.textContent   = cfg.volume;
+    volMusicSlider.value     = cfg.volMusic;
+    volMusicDisplay.textContent = cfg.volMusic;
+    volSESlider.value        = cfg.volSE;
+    volSEDisplay.textContent   = cfg.volSE;
     offsetDisp.textContent   = cfg.offset + ' ms';
     speedDisp.textContent    = cfg.speed.toFixed(1) + ' s';
     autoDisplay.textContent  = cfg.autoMode ? 'ON' : 'OFF';
+    mvDisplay.textContent    = cfg.mvMode === 'full' ? '全画面' : '縮小';
 }
 
 function saveLS(key, val) { localStorage.setItem(LS_KEY + key, val); }
 function loadLS(key, def) { return localStorage.getItem(LS_KEY + key) ?? def; }
 function clampInt(v, mn, mx) { return Math.max(mn, Math.min(mx, parseInt(v, 10))); }
 
-// Volume
-volSlider.addEventListener('input', () => {
-    cfg.volume = parseInt(volSlider.value, 10);
-    volDisplay.textContent = cfg.volume;
-    saveLS('volume', cfg.volume);
-    if (ytReady && ytPlayer) ytPlayer.setVolume(cfg.volume);
+// Music Volume
+volMusicSlider.addEventListener('input', () => {
+    cfg.volMusic = parseInt(volMusicSlider.value, 10);
+    volMusicDisplay.textContent = cfg.volMusic;
+    saveLS('volMusic', cfg.volMusic);
+    if (ytReady && ytPlayer) ytPlayer.setVolume(cfg.volMusic);
 });
-$('btn-vol-minus').addEventListener('click', () => { volSlider.value = Math.max(0,  cfg.volume - 5); volSlider.dispatchEvent(new Event('input')); });
-$('btn-vol-plus' ).addEventListener('click', () => { volSlider.value = Math.min(100, cfg.volume + 5); volSlider.dispatchEvent(new Event('input')); });
+$('btn-vol-music-minus').addEventListener('click', () => { volMusicSlider.value = Math.max(0,  cfg.volMusic - 5); volMusicSlider.dispatchEvent(new Event('input')); });
+$('btn-vol-music-plus' ).addEventListener('click', () => { volMusicSlider.value = Math.min(100, cfg.volMusic + 5); volMusicSlider.dispatchEvent(new Event('input')); });
+
+// SE Volume
+volSESlider.addEventListener('input', () => {
+    cfg.volSE = parseInt(volSESlider.value, 10);
+    volSEDisplay.textContent = cfg.volSE;
+    saveLS('volSE', cfg.volSE);
+});
+$('btn-vol-se-minus').addEventListener('click', () => { volSESlider.value = Math.max(0,  cfg.volSE - 5); volSESlider.dispatchEvent(new Event('input')); });
+$('btn-vol-se-plus' ).addEventListener('click', () => { volSESlider.value = Math.min(100, cfg.volSE + 5); volSESlider.dispatchEvent(new Event('input')); });
 
 // Offset
 $('btn-offset-minus').addEventListener('click', () => {
@@ -704,6 +722,13 @@ btnAutoToggle.addEventListener('click', () => {
     updateScoreDisplay();
 });
 
+// MV Mode
+btnMvToggle.addEventListener('click', () => {
+    cfg.mvMode = cfg.mvMode === 'full' ? 'thumb' : 'full';
+    mvDisplay.textContent = cfg.mvMode === 'full' ? '全画面' : '縮小';
+    saveLS('mvMode', cfg.mvMode);
+});
+
 /* ══════════════════════════════════════════════════════════════
    MENU BUTTONS
 ══════════════════════════════════════════════════════════════ */
@@ -722,8 +747,9 @@ $('btn-quit-pause').addEventListener('click', quitGame);
 function showScreen(el) {
     [menuScreen, gameScreen, resultScreen].forEach(s => s.classList.remove('active'));
     el.classList.add('active');
-    // ゲーム中のみ背景画像を消してYouTube MVを全画面表示
+    // ゲーム中のみ背景画像を消してYouTube MVを全画面表示または縮小表示
     document.body.classList.toggle('is-playing', el === gameScreen);
+    document.body.classList.toggle('mv-thumb', cfg.mvMode === 'thumb');
 }
 function stopYt() {
     if (ytReady && ytPlayer) ytPlayer.stopVideo();

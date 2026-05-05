@@ -54,16 +54,29 @@
             <div class="settings-panel">
                 <h2 class="settings-title">⚙ SETTINGS</h2>
 
-                <!-- Volume -->
-                <div class="setting-row" id="setting-volume">
-                    <label class="setting-label">🔊 音量</label>
+                <!-- Music Volume -->
+                <div class="setting-row" id="setting-vol-music">
+                    <label class="setting-label">🎵 BGM音量</label>
                     <div class="setting-control">
-                        <button class="adj-btn" id="btn-vol-minus">−</button>
+                        <button class="adj-btn" id="btn-vol-music-minus">−</button>
                         <div class="slider-wrap">
-                            <input type="range" id="vol-slider" min="0" max="100" value="80">
+                            <input type="range" id="vol-music-slider" min="0" max="100" value="80">
                         </div>
-                        <span class="setting-val" id="vol-display">80</span>
-                        <button class="adj-btn" id="btn-vol-plus">＋</button>
+                        <span class="setting-val" id="vol-music-display">80</span>
+                        <button class="adj-btn" id="btn-vol-music-plus">＋</button>
+                    </div>
+                </div>
+
+                <!-- SE Volume -->
+                <div class="setting-row" id="setting-vol-se">
+                    <label class="setting-label">✨ SE音量</label>
+                    <div class="setting-control">
+                        <button class="adj-btn" id="btn-vol-se-minus">−</button>
+                        <div class="slider-wrap">
+                            <input type="range" id="vol-se-slider" min="0" max="100" value="80">
+                        </div>
+                        <span class="setting-val" id="vol-se-display">80</span>
+                        <button class="adj-btn" id="btn-vol-se-plus">＋</button>
                     </div>
                 </div>
 
@@ -93,6 +106,15 @@
                     <div class="setting-control">
                         <span class="setting-val wide" id="auto-display">OFF</span>
                         <button class="adj-btn" id="btn-auto-toggle" style="width:auto; padding:0 12px; margin-left:8px;">切替</button>
+                    </div>
+                </div>
+
+                <!-- MV Mode -->
+                <div class="setting-row" id="setting-mv">
+                    <label class="setting-label">📺 MV再生</label>
+                    <div class="setting-control">
+                        <span class="setting-val wide" id="mv-display">全画面</span>
+                        <button class="adj-btn" id="btn-mv-toggle" style="width:auto; padding:0 12px; margin-left:8px;">切替</button>
                     </div>
                 </div>
 
